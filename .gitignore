@@ -1,0 +1,148 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+.venv
+virtualenv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.project
+.pydevproject
+.settings/
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+mongodb_data/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# OS
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Node (si utilisé côté frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+dist/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Caches
+.cache/
+tmp/
+temp/
+
+# Uploads
+uploads/
+*.uploaded
+
+# Models (fichiers volumineux)
+ml_models/saved/
+ml_models/*.h5
+ml_models/*.pkl
+ml_models/*.joblib
+
+# Data
+data/raw/
+data/processed/
+*.csv
+*.xlsx
+
+# Docker
+docker-compose.override.yml
+
+# Security
+*.pem
+*.key
+*.crt
+secret_keys.txt
+
+# IDE spécifiques
+vscode/launch.json
+.idea/runConfigurations/
+
+# API Keys & Credentials
+google-service-account.json
+earth-engine-key.json
+aws-credentials.json
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# Generated files
+htmlcov/
+.dmypy.json
+dmypy.json
+
+# Misc
+.Python
+.venv
+.vscode
+.idea
+*.swp
+*.swo

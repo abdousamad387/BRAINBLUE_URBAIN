@@ -1,0 +1,83 @@
+# Git attributes for BRAINBLUE URBAIN
+# Ensure consistent line endings across platforms
+
+# Auto detect text files and normalize line endings to LF
+* text=auto
+
+# Python files
+*.py text eol=lf
+*.pyw text eol=lf
+*.pyx text eol=lf
+*.pyi text eol=lf
+
+# Shell Scripts
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+*.fish text eol=lf
+
+# Windows batch scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.com text eol=crlf
+
+# Docker
+Dockerfile text eol=lf
+dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# Configuration files
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+.env* text eol=lf
+.editorconfig text eol=lf
+.gitconfig text eol=lf
+
+# Web files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.xml text eol=lf
+*.svg text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.markdown text eol=lf
+*.txt text eol=lf
+*.rst text eol=lf
+
+# Make
+Makefile text eol=lf
+makefile text eol=lf
+*.make text eol=lf
+
+# SQL
+*.sql text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.otf binary
+*.db binary
+*.sqlite binary
+
+# Archives
+*.tar binary
+*.tar.gz binary
+*.rar binary
+*.iso binary

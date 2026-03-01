@@ -1,0 +1,2537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="BRAINBLUE URBAIN - Plateforme SIG pour la gestion intégrée de l'eau urbaine en Afrique">
+    <meta name="theme-color" content="#0066cc">
+    
+    <title>🧜‍♀️ 🏙️ BRAINBLUE URBAIN - Gestion Intégrée de l'Eau Urbaine</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Leaflet pour cartes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-draw/1.0.4/leaflet.draw.min.css">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #003d7a;
+            --secondary: #00a8e8;
+            --success: #06a77d;
+            --danger: #d62828;
+            --warning: #f77f00;
+            --info: #00b4d8;
+            --dark: #0a1628;
+            --darker: #050c14;
+            --light: #f5f7fa;
+            --light-gray: #e2e8f0;
+            --text-dark: #1a202c;
+            --text-light: #718096;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 20px rgba(0, 102, 204, 0.15);
+            --shadow-lg: 0 10px 40px rgba(0, 102, 204, 0.2);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            color: var(--text-dark);
+            line-height: 1.7;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes glow {
+            0%, 100% { 
+                text-shadow: 0 0 10px rgba(0, 102, 204, 0.7),
+                            0 0 20px rgba(0, 168, 232, 0.5),
+                            0 0 30px rgba(0, 102, 204, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(0, 102, 204, 0.95),
+                            0 0 40px rgba(0, 168, 232, 0.7),
+                            0 0 60px rgba(0, 102, 204, 0.5);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.15); }
+        }
+
+        @keyframes titleRainbow {
+            0% { 
+                color: #ffffff;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                            0 0 20px rgba(255, 255, 255, 0.6),
+                            0 0 30px rgba(255, 255, 255, 0.4);
+            }
+            25% { 
+                color: #1a4d2e;
+                text-shadow: 0 0 10px rgba(26, 77, 46, 0.8),
+                            0 0 20px rgba(26, 77, 46, 0.6),
+                            0 0 30px rgba(26, 77, 46, 0.4);
+            }
+            50% { 
+                color: #00b4d8;
+                text-shadow: 0 0 10px rgba(0, 180, 216, 0.8),
+                            0 0 20px rgba(0, 180, 216, 0.6),
+                            0 0 30px rgba(0, 180, 216, 0.4);
+            }
+            75% { 
+                color: #003d7a;
+                text-shadow: 0 0 10px rgba(0, 61, 122, 0.8),
+                            0 0 20px rgba(0, 61, 122, 0.6),
+                            0 0 30px rgba(0, 61, 122, 0.4);
+            }
+            100% { 
+                color: #ffffff;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                            0 0 20px rgba(255, 255, 255, 0.6),
+                            0 0 30px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        /* ========== NAVBAR ========== */
+        .navbar-main {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 4px solid rgba(255,255,255,0.2);
+            min-height: 100px;
+        }
+
+        .navbar-brand {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            letter-spacing: -1px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .logo-emoji {
+            font-size: 3.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: bounce 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(0, 102, 204, 0.6));
+        }
+
+        .logo-emoji span {
+            display: inline-block;
+        }
+
+        .logo-emoji span:first-child {
+            animation: bounce 2.5s ease-in-out infinite;
+        }
+
+        .logo-emoji span:last-child {
+            animation: bounce 2.5s ease-in-out infinite 0.2s;
+        }
+
+        .navbar-brand span {
+            display: inline-block;
+            font-size: 2.8rem;
+            font-weight: 900;
+            animation: titleRainbow 5s ease-in-out infinite;
+            letter-spacing: -1px;
+        }
+
+        .nav-link-main {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 0.75rem 1.5rem !important;
+            border-radius: 10px;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-link-main:hover {
+            color: white !important;
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .nav-link-main.active {
+            background: rgba(255,255,255,0.35);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.2), 0 4px 15px rgba(0,0,0,0.2);
+            font-weight: 800;
+        }
+
+        .user-badge {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: 2px solid rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            padding: 3rem 2rem;
+            min-height: calc(100vh - 100px);
+        }
+
+        .page-header {
+            margin-bottom: 3.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .page-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #0066cc 0%, #00a8e8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 3px 10px rgba(0, 102, 204, 0.3));
+        }
+
+        .page-title i {
+            font-size: 4rem;
+            color: var(--primary);
+            filter: drop-shadow(0 0 10px rgba(0, 102, 204, 0.4));
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* ========== CARDS ========== */
+        .card-modern {
+            background: white;
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            overflow: hidden;
+            border-top: 6px solid var(--primary);
+        }
+
+        .card-modern:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-12px);
+        }
+
+        .card-modern .card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem;
+            border: none;
+            font-weight: 800;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-modern .card-header i {
+            font-size: 2rem;
+        }
+
+        .card-modern .card-body {
+            padding: 2.5rem;
+        }
+
+        /* ========== STAT BOXES ========== */
+        .stat-box {
+            background: white;
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: var(--transition);
+            border-top: 6px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0, 102, 204, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .stat-box.success { border-top-color: var(--success); }
+        .stat-box.danger { border-top-color: var(--danger); }
+        .stat-box.warning { border-top-color: var(--warning); }
+        .stat-box.info { border-top-color: var(--info); }
+
+        .stat-box:hover {
+            transform: translateY(-15px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            opacity: 0.85;
+        }
+
+        .stat-box.success .stat-icon { color: var(--success); }
+        .stat-box.danger .stat-icon { color: var(--danger); }
+        .stat-box.warning .stat-icon { color: var(--warning); }
+
+        .stat-value {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin: 1rem 0;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 1rem;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-custom {
+            font-weight: 800;
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            transition: var(--transition);
+            border: none;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 102, 204, 0.5);
+            color: white;
+        }
+
+        .btn-primary-custom:active {
+            transform: translateY(-1px);
+        }
+
+        /* ========== MAPS ========== */
+        .map-container {
+            height: 650px;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            margin: 0;
+            position: relative;
+            border: 4px solid var(--primary);
+        }
+
+        #map {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 14px;
+            z-index: 1;
+        }
+
+        .map-legend {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 102, 204, 0.2);
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            line-height: 2.2;
+            max-width: 350px;
+        }
+
+        .legend-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.8rem;
+        }
+
+        .legend-color {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-item.line .legend-color {
+            height: 5px;
+            border-radius: 3px;
+        }
+
+        .legend-text {
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .legend-text-small {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .map-info-box {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            padding: 1.2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 102, 204, 0.2);
+            font-family: 'Poppins', sans-serif;
+            z-index: 500;
+            max-width: 300px;
+        }
+
+        .map-info-box h4 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .map-info-box p {
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            margin: 0.5rem 0;
+            font-weight: 600;
+        }
+
+        .leaflet-popup {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .popup-header {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: white;
+            background: linear-gradient(135deg, #0066cc 0%, #00a8e8 100%);
+            padding: 1rem;
+            margin: -7px -7px 0.8rem -7px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .popup-content {
+            padding: 0 0.5rem;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .popup-content p {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .popup-footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--light-gray);
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .leaflet-control-container {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .leaflet-popup-content {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.25);
+        }
+
+        /* ========== TABLES POWER BI ========== */
+        .powerbi-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 2rem;
+        }
+
+        .powerbi-table thead {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .powerbi-table thead th {
+            border: none;
+            font-weight: 800;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-align: left;
+        }
+
+        .powerbi-table tbody td {
+            border-bottom: 2px solid var(--light-gray);
+            padding: 1.25rem 1.5rem;
+            vertical-align: middle;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .powerbi-table tbody tr:hover {
+            background: linear-gradient(90deg, rgba(0, 102, 204, 0.08) 0%, transparent 100%);
+            transition: var(--transition);
+        }
+
+        .powerbi-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ========== CHARTS ========== */
+        .chart-container {
+            position: relative;
+            height: 450px;
+            width: 100%;
+            margin: 2rem 0;
+        }
+
+        .chart-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-title i {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        /* ========== BADGES ========== */
+        .badge-status {
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            display: inline-block;
+        }
+
+        .badge-operational {
+            background: linear-gradient(135deg, rgba(6, 167, 125, 0.2) 0%, rgba(6, 167, 125, 0.1) 100%);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, rgba(247, 127, 0, 0.2) 0%, rgba(247, 127, 0, 0.1) 100%);
+            color: var(--warning);
+            border: 2px solid var(--warning);
+        }
+
+        .badge-critical {
+            background: linear-gradient(135deg, rgba(214, 40, 40, 0.2) 0%, rgba(214, 40, 40, 0.1) 100%);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        /* ========== ALERTS ========== */
+        .alert-custom {
+            border: none;
+            border-left: 6px solid;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .alert-custom.alert-danger {
+            background: linear-gradient(135deg, rgba(214, 40, 40, 0.1) 0%, rgba(214, 40, 40, 0.05) 100%);
+            border-left-color: var(--danger);
+            color: #a61e1e;
+        }
+
+        /* ========== PROGRESS BARS ========== */
+        .progress {
+            height: 16px;
+            border-radius: 10px;
+            background: var(--light-gray);
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin: 1.5rem 0;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            transition: width 0.8s ease;
+        }
+
+        .progress-bar.success {
+            background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .navbar-main {
+                padding: 0.8rem 1rem;
+                min-height: 80px;
+                flex-wrap: wrap;
+            }
+
+            .navbar-brand {
+                font-size: 1.8rem;
+            }
+
+            .logo-emoji {
+                font-size: 2rem;
+            }
+
+            .page-title {
+                font-size: 2.2rem;
+            }
+
+            .stat-value {
+                font-size: 2.2rem;
+            }
+
+            .stat-icon {
+                font-size: 2.5rem;
+            }
+
+            .map-container {
+                height: 400px;
+            }
+
+            .chart-container {
+                height: 320px;
+            }
+
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .card-modern {
+                border-radius: 16px;
+            }
+
+            .btn-custom {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+
+            .nav-link-main {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.95rem;
+            }
+
+            .tab-content {
+                padding: 1.5rem 0.5rem;
+            }
+
+            .powerbi-table {
+                font-size: 0.95rem;
+            }
+
+            .powerbi-table th,
+            .powerbi-table td {
+                padding: 1rem 0.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-main {
+                padding: 0.6rem 0.8rem;
+                min-height: 70px;
+            }
+
+            .navbar-brand {
+                font-size: 1.3rem;
+                gap: 10px;
+            }
+
+            .logo-emoji {
+                font-size: 1.4rem;
+                gap: 3px;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+                gap: 10px;
+            }
+
+            .page-title i {
+                font-size: 2rem;
+            }
+
+            .page-subtitle {
+                font-size: 1rem;
+            }
+
+            .stat-box {
+                padding: 1.2rem;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            .stat-icon {
+                font-size: 2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .stat-label {
+                font-size: 0.85rem;
+                margin-top: 0.5rem;
+            }
+
+            .card-modern {
+                border-radius: 14px;
+                border-top-width: 4px;
+            }
+
+            .card-modern .card-header {
+                padding: 1.2rem;
+                font-size: 1.2rem;
+                gap: 10px;
+            }
+
+            .card-modern .card-header i {
+                font-size: 1.5rem;
+            }
+
+            .card-modern .card-body {
+                padding: 1.5rem;
+            }
+
+            .btn-custom {
+                padding: 0.9rem 1.5rem;
+                font-size: 0.95rem;
+                width: 100%;
+                border-radius: 10px;
+            }
+
+            .btn-primary-custom {
+                min-height: 46px;
+            }
+
+            .nav-link-main {
+                padding: 0.6rem 0.8rem !important;
+                font-size: 0.9rem;
+                text-transform: none;
+                letter-spacing: 0;
+            }
+
+            .nav-link-main i {
+                font-size: 1.2rem;
+                margin-right: 0.3rem;
+            }
+
+            .main-content {
+                padding: 1rem 0.8rem;
+            }
+
+            .page-header {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+            }
+
+            .map-container {
+                height: 300px;
+                border-radius: 14px;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+
+            .chart-title {
+                font-size: 1.3rem;
+                margin-bottom: 1rem;
+                gap: 8px;
+            }
+
+            .chart-title i {
+                font-size: 1.4rem;
+            }
+
+            .powerbi-table {
+                font-size: 0.85rem;
+                margin-top: 1rem;
+            }
+
+            .powerbi-table thead {
+                font-size: 0.8rem;
+            }
+
+            .powerbi-table thead th {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.75rem;
+                text-transform: none;
+                letter-spacing: 0;
+            }
+
+            .powerbi-table tbody td {
+                padding: 0.7rem 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .badge-status {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.75rem;
+            }
+
+            .alert-custom {
+                padding: 1.2rem;
+                margin-bottom: 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            .progress {
+                height: 14px;
+                margin: 1rem 0;
+            }
+
+            .progress-bar {
+                font-size: 0.75rem;
+            }
+
+            .tab-content {
+                padding: 1rem 0.3rem;
+            }
+
+            #adminTabs button {
+                padding: 0.8rem 1rem !important;
+                font-size: 0.9rem !important;
+            }
+
+            .map-legend {
+                max-width: 280px;
+                padding: 1rem;
+                font-size: 0.9rem;
+                line-height: 1.8;
+            }
+
+            .legend-title {
+                font-size: 1.1rem;
+            }
+
+            .legend-color {
+                width: 20px;
+                height: 20px;
+            }
+
+            .map-info-box {
+                max-width: 250px;
+                padding: 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .map-info-box h4 {
+                font-size: 0.95rem;
+            }
+
+            .map-info-box p {
+                font-size: 0.8rem;
+                margin: 0.4rem 0;
+            }
+
+            .popup-header {
+                font-size: 1rem;
+                padding: 0.8rem;
+            }
+
+            .popup-content {
+                padding: 0;
+                font-size: 0.85rem;
+            }
+
+            .popup-content p {
+                margin: 0.4rem 0;
+                gap: 6px;
+                font-size: 0.8rem;
+            }
+
+            .popup-footer {
+                font-size: 0.7rem;
+            }
+
+            /* Navbar collapse amélioré */
+            .navbar-toggler {
+                border: 2px solid white !important;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .navbar-toggler:focus {
+                box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+            }
+
+            .collapse.navbar-collapse {
+                background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+                border-radius: 10px;
+                padding: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            .navbar-nav {
+                flex-direction: column;
+                gap: 0.5rem !important;
+            }
+
+            .navbar-nav .nav-item {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+
+            .navbar-nav .nav-link-main {
+                display: block;
+                text-align: center;
+                width: 100%;
+            }
+
+            /* Meilleures touches pour mobile */
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            input, select, textarea {
+                font-size: 16px;
+            }
+
+            /* Scrolling horizontal optimisé */
+            .powerbi-table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+
+            .powerbi-table tbody {
+                display: table;
+                width: 100%;
+            }
+
+            /* Grilles responsive */
+            .row {
+                --bs-gutter-x: 0.75rem;
+                --bs-gutter-y: 1rem;
+            }
+
+            .col-lg-3,
+            .col-lg-6,
+            .col-lg-4,
+            .col-lg-8 {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* Inputs de formulaires mieux sized */
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            select,
+            textarea {
+                width: 100%;
+                padding: 0.8rem;
+                border-radius: 8px;
+                font-size: 0.95rem;
+                line-height: 1.4;
+            }
+
+            /* Meilleure lisibilité */
+            body {
+                font-size: 15px;
+            }
+
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.3rem; }
+            h3 { font-size: 1.1rem; }
+            h4 { font-size: 1rem; }
+
+            /* Espacements adaptés */
+            .main-content {
+                padding: 0.8rem;
+            }
+
+            .page-section {
+                margin: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .page-title {
+                font-size: 1.3rem;
+            }
+
+            .stat-value {
+                font-size: 1.6rem;
+            }
+
+            .btn-custom {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-link-main {
+                font-size: 0.85rem !important;
+            }
+
+            .card-modern .card-header {
+                font-size: 1.1rem;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+
+            .logo-emoji {
+                font-size: 1.2rem;
+            }
+
+            .page-title {
+                font-size: 1.2rem;
+            }
+
+            .stat-box {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.4rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* ========== UTILITIES ========== */
+        .hidden {
+            display: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, var(--secondary) 0%, var(--primary) 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div id="app">
+        <!-- Navbar Ultra-Premium -->
+        <nav class="navbar navbar-main navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="javascript:void(0)">
+                    <span class="logo-emoji">
+                        <span style="animation: bounce 2.5s ease-in-out infinite; font-size: 3rem;">💧</span>
+                    </span>
+                    <span>BRAINBLUE URBAIN</span>
+                </a>
+                
+                <button class="navbar-toggler bg-light" type="button" onclick="toggleMenu()">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center gap-3">
+                        <li class="nav-item">
+                            <a class="nav-link-main active" href="javascript:void(0)" onclick="navigateTo('dashboard')">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-main" href="javascript:void(0)" onclick="navigateTo('maps')">
+                                <i class="bi bi-map"></i> Cartes Avancées
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-main" href="javascript:void(0)" onclick="navigateTo('predictions')">
+                                <i class="bi bi-cpu"></i> IA & Prédictions
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link-main" href="javascript:void(0)" onclick="navigateTo('admin')">
+                                <i class="bi bi-shield-lock"></i> Admin
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <div class="main-content">
+            <section id="dashboard-section" class="page-section">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="bi bi-speedometer2"></i> Tableau de Bord Principal
+                    </h1>
+                    <p class="page-subtitle">Suivi en temps réel des ressources hydriques urbaines - Dakar & Abidjan</p>
+                </div>
+
+                <!-- Quick Stats Row 1 -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box fade-in-up">
+                            <i class="stat-icon bi bi-lightning-fill"></i>
+                            <div class="stat-value">98.5%</div>
+                            <div class="stat-label">Accès à l'Eau Potable</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box danger fade-in-up" style="animation-delay: 0.1s">
+                            <i class="stat-icon bi bi-exclamation-triangle-fill"></i>
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Zones à Risque Élevé</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box success fade-in-up" style="animation-delay: 0.2s">
+                            <i class="stat-icon bi bi-check-circle-fill"></i>
+                            <div class="stat-value">45</div>
+                            <div class="stat-label">Réseaux Opérationnels</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box warning fade-in-up" style="animation-delay: 0.3s">
+                            <i class="stat-icon bi bi-droplet-fill"></i>
+                            <div class="stat-value">2.4M</div>
+                            <div class="stat-label">Débit Quotidien m³</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert Section -->
+                <div class="alert alert-custom alert-danger" role="alert">
+                    <i class="bi bi-exclamation-circle-fill"></i>
+                    <strong> ALERTE CRITIQUE:</strong> Niveau d'eau anormalement bas dans le réservoir de Dakar. Action requise immédiatement!
+                </div>
+
+                <!-- Charts -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-8">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-graph-up"></i> Tendance du Débit (7 Jours)
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="flowChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-pie-chart"></i> Distribution par Ville
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height: 350px;">
+                                    <canvas id="cityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerts Table -->
+                <div class="card-modern">
+                    <div class="card-header">
+                        <i class="bi bi-exclamation-octagon"></i> Alertes Actives en Temps Réel
+                    </div>
+                    <div class="card-body">
+                        <div style="overflow-x: auto;">
+                            <table class="powerbi-table">
+                                <thead>
+                                    <tr>
+                                        <th>📍 Localisation</th>
+                                        <th>🚨 Type d'Alerte</th>
+                                        <th>⚠️ Sévérité</th>
+                                        <th>⏱️ Temps Écoulé</th>
+                                        <th>✅ Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Dakar - Réservoir Central</strong></td>
+                                        <td>Niveau d'eau bas</td>
+                                        <td><span class="badge-status badge-critical">🔴 CRITIQUE</span></td>
+                                        <td>2h 23min</td>
+                                        <td>En Cours</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Abidjan - Zone Périphérie</strong></td>
+                                        <td>Fuite détectée</td>
+                                        <td><span class="badge-status badge-warning">🟠 ATTENTION</span></td>
+                                        <td>45min</td>
+                                        <td>Enquête</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Dakar - Zone Nord</strong></td>
+                                        <td>Pression élevée</td>
+                                        <td><span class="badge-status badge-warning">🟠 ATTENTION</span></td>
+                                        <td>12min</td>
+                                        <td>Monitoring</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Abidjan - Distribution A</strong></td>
+                                        <td>Qualité de l'eau</td>
+                                        <td><span class="badge-status badge-operational">🟢 OK</span></td>
+                                        <td>Normal</td>
+                                        <td>Stable</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Maps Section -->
+            <section id="maps-section" class="page-section hidden">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="bi bi-map"></i> Cartes Géospatiales Avancées
+                    </h1>
+                    <p class="page-subtitle">Visualisation complète des infrastructures hydriques, nappes phréatiques, bassins et réseaux</p>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-map"></i> Carte Interactive Dakar - Réseaux & Nappes Phréatiques
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="map-container">
+                                    <div id="map"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-info-circle"></i> Légende des Couches Cartographiques
+                            </div>
+                            <div class="card-body">
+                                <div style="font-size: 1.1rem; line-height: 2;">
+                                    <p><strong>🔵 Réseaux Hydrographiques:</strong> Rivières, canaux, chemins d'eau principaux</p>
+                                    <p><strong>💧 Nappes Phréatiques:</strong> Aquifères souterrains par type et profondeur</p>
+                                    <p><strong>🏊 Bassins de Rétention:</strong> Réservoirs de stockage et points de collecte</p>
+                                    <p><strong>📍 Stations de Pompage:</strong> Infrastructure de distribution dans le réseau</p>
+                                    <p><strong>🚨 Zones à Risque:</strong> Inondations, contamination, assèchement</p>
+                                    <p><strong>🏭 Traitement:</strong> Usines de traitement d'eau et assainissement</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-bar-chart"></i> Statistiques Géospatiales
+                            </div>
+                            <div class="card-body" style="font-size: 1.1rem; font-weight: 600;">
+                                <p>📏 Longueur totale réseaux: <strong>1,240 km</strong></p>
+                                <p>💧 Nappes phréatiques: <strong>3 aquifères majeurs</strong></p>
+                                <p>🛢️ Capacité bassins: <strong>4.5M m³</strong></p>
+                                <p>📍 Stations actives: <strong>156</strong></p>
+                                <p>🏥 Usines de traitement: <strong>12</strong></p>
+                                <p>⚠️ Zones critique: <strong>8 (suivi intensif)</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Predictions IA Section -->
+            <section id="predictions-section" class="page-section hidden">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="bi bi-cpu"></i> Intelligence Artificielle & Prédictions
+                    </h1>
+                    <p class="page-subtitle">4 modèles ML performants avec résultats détaillés en temps réel</p>
+                </div>
+
+                <!-- Models Overview -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-6">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-cpu"></i> LSTM Ensemble - Prédiction Niveaux d'Eau
+                            </div>
+                            <div class="card-body">
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0;">
+                                    Précision: <strong style="color: var(--success);">87.5%</strong>
+                                </p>
+                                <div class="progress">
+                                    <div class="progress-bar success" style="width: 87.5%"></div>
+                                </div>
+                                <p style="font-size: 1.05rem; color: var(--text-light); margin-top: 1.5rem;">
+                                    Modèle d'apprentissage profond utilisant 90 jours d'historique pour prédictions 7 jours.
+                                </p>
+                                <button class="btn btn-primary-custom btn-custom w-100 mt-3" onclick="runPrediction('lstm')">
+                                    <i class="bi bi-play-circle"></i> Générer Prédiction
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-bar-chart-fill"></i> XGBoost - Demande en Eau
+                            </div>
+                            <div class="card-body">
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0;">
+                                    Précision: <strong style="color: var(--success);">85.2%</strong>
+                                </p>
+                                <div class="progress">
+                                    <div class="progress-bar success" style="width: 85.2%"></div>
+                                </div>
+                                <p style="font-size: 1.05rem; color: var(--text-light); margin-top: 1.5rem;">
+                                    Gradient Boosting pour prédiction de consommation basée sur jour/heure/saison/température.
+                                </p>
+                                <button class="btn btn-primary-custom btn-custom w-100 mt-3" onclick="runPrediction('xgboost')">
+                                    <i class="bi bi-play-circle"></i> Générer Prédiction
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-6">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-cloud-rain"></i> CNN-SAR - Détection Inondations
+                            </div>
+                            <div class="card-body">
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0;">
+                                    Précision: <strong style="color: var(--success);">88.9%</strong>
+                                </p>
+                                <div class="progress">
+                                    <div class="progress-bar success" style="width: 88.9%"></div>
+                                </div>
+                                <p style="font-size: 1.05rem; color: var(--text-light); margin-top: 1.5rem;">
+                                    Réseau de neurones convolutif sur imagerie SAR Sentinel-1 pour détection inondations.
+                                </p>
+                                <button class="btn btn-primary-custom btn-custom w-100 mt-3" onclick="runPrediction('cnn')">
+                                    <i class="bi bi-play-circle"></i> Analyser Inondations
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card-modern">
+                            <div class="card-header">
+                                <i class="bi bi-exclamation-triangle"></i> RandomForest - Ruptures Tuyaux
+                            </div>
+                            <div class="card-body">
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0;">
+                                    Précision: <strong style="color: #f77f00;">81.5%</strong>
+                                </p>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: 81.5%; background: linear-gradient(90deg, #f77f00 0%, #d97706 100%);"></div>
+                                </div>
+                                <p style="font-size: 1.05rem; color: var(--text-light); margin-top: 1.5rem;">
+                                    Ensemble RandomForest pour prédiction ruptures basée sur âge/matériau/pression/sol.
+                                </p>
+                                <button class="btn btn-primary-custom btn-custom w-100 mt-3" onclick="runPrediction('rf')">
+                                    <i class="bi bi-play-circle"></i> Prédire Ruptures
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="prediction-results" class="hidden">
+                    <div class="card-modern">
+                        <div class="card-header">
+                            <i class="bi bi-graph-up"></i> Résultats Détaillés - Analyse Power BI
+                        </div>
+                        <div class="card-body">
+                            <div id="results-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Section -->
+            <section id="admin-section" class="page-section hidden">
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="bi bi-shield-lock"></i> Panneau d'Administration
+                    </h1>
+                    <p class="page-subtitle">Gestion système, utilisateurs, paramètres et monitoring en temps réel</p>
+                </div>
+
+                <!-- Admin Stats -->
+                <div class="row g-4 mb-5">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box fade-in-up">
+                            <i class="stat-icon bi bi-people-fill"></i>
+                            <div class="stat-value" id="total-users">8</div>
+                            <div class="stat-label">Utilisateurs Actifs</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box success fade-in-up" style="animation-delay: 0.1s">
+                            <i class="stat-icon bi bi-server"></i>
+                            <div class="stat-value">99.8%</div>
+                            <div class="stat-label">Disponibilité Système</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box fade-in-up" style="animation-delay: 0.2s">
+                            <i class="stat-icon bi bi-database"></i>
+                            <div class="stat-value">2.4GB</div>
+                            <div class="stat-label">Espace BD Utilisé</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="stat-box info fade-in-up" style="animation-delay: 0.3s">
+                            <i class="stat-icon bi bi-clock-history"></i>
+                            <div class="stat-value">24h</div>
+                            <div class="stat-label">Uptime</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs Admin -->
+                <div class="card-modern mb-5">
+                    <div class="card-header">
+                        <i class="bi bi-sliders"></i> Gestion Administration
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="adminTabs" role="tablist" style="border-bottom: 3px solid var(--light-gray); margin-bottom: 2rem;">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" style="font-weight: 700; font-size: 1.1rem; color: var(--primary); border: none; padding: 1rem 2rem;" type="button">👥 Utilisateurs</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" style="font-weight: 700; font-size: 1.1rem; color: var(--text-dark); border: none; padding: 1rem 2rem;" type="button">🔐 Sécurité</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" style="font-weight: 700; font-size: 1.1rem; color: var(--text-dark); border: none; padding: 1rem 2rem;" type="button">📋 Logs</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" style="font-weight: 700; font-size: 1.1rem; color: var(--text-dark); border: none; padding: 1rem 2rem;" type="button">⚙️ Paramètres</button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="adminTabContent">
+                            <!-- Users Tab -->
+                            <div class="tab-pane fade show active" id="users" role="tabpanel">
+                                <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">👥 Gestion des Utilisateurs</h3>
+                                <div style="margin-bottom: 2rem;">
+                                    <button class="btn btn-primary-custom btn-custom" onclick="addNewUser()">
+                                        <i class="bi bi-plus-circle"></i> Ajouter Utilisateur
+                                    </button>
+                                </div>
+                                <div style="overflow-x: auto;">
+                                    <table class="powerbi-table">
+                                        <thead>
+                                            <tr>
+                                                <th>👤 Nom Utilisateur</th>
+                                                <th>📧 Email</th>
+                                                <th>👔 Rôle</th>
+                                                <th>✅ Status</th>
+                                                <th>🔧 Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="users-list">
+                                            <tr>
+                                                <td><strong>Ahmed Diallo</strong></td>
+                                                <td>ahmed.diallo@brainblue.sn</td>
+                                                <td><span class="badge-status badge-operational">ADMIN</span></td>
+                                                <td>🟢 Actif</td>
+                                                <td><button class="btn btn-sm" onclick="editUser(1)" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Éditer</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Marie Sow</strong></td>
+                                                <td>marie.sow@brainblue.sn</td>
+                                                <td><span class="badge-status badge-operational">SUPERVISEUR</span></td>
+                                                <td>🟢 Actif</td>
+                                                <td><button class="btn btn-sm" onclick="editUser(2)" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Éditer</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Kofi Mensah</strong></td>
+                                                <td>kofi.mensah@brainblue.ci</td>
+                                                <td><span class="badge-status badge-warning">OPÉRATEUR</span></td>
+                                                <td>🟢 Actif</td>
+                                                <td><button class="btn btn-sm" onclick="editUser(3)" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Éditer</button></td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Fatima Toure</strong></td>
+                                                <td>fatima.toure@brainblue.sn</td>
+                                                <td><span class="badge-status badge-warning">ANALYSTE</span></td>
+                                                <td>🟡 Inactif</td>
+                                                <td><button class="btn btn-sm" onclick="editUser(4)" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Éditer</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Security Tab -->
+                            <div class="tab-pane fade" id="security" role="tabpanel">
+                                <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">🔐 Paramètres de Sécurité</h3>
+                                <div class="row g-4">
+                                    <div class="col-lg-6">
+                                        <div style="background: linear-gradient(135deg, rgba(6,167,125,0.1) 0%, rgba(6,167,125,0.05) 100%); padding: 2rem; border-radius: 12px; border-left: 5px solid var(--success);">
+                                            <h4 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem;">✅ Authentification</h4>
+                                            <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">🔒 JWT Tokens: <strong>ACTIVÉ</strong></p>
+                                            <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">🔐 Chiffrement BD: <strong>AES-256</strong></p>
+                                            <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">📱 Double Authentification: <strong>DISPONIBLE</strong></p>
+                                            <button class="btn btn-primary-custom btn-custom mt-2" onclick="enableTwoFactor()">
+                                                <i class="bi bi-shield-check"></i> Activer 2FA Globalement
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div style="background: linear-gradient(135deg, rgba(214,40,40,0.1) 0%, rgba(214,40,40,0.05) 100%); padding: 2rem; border-radius: 12px; border-left: 5px solid var(--danger);">
+                                            <h4 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem;">🚨 Accès & Permissions</h4>
+                                            <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">🌐 CORS: <strong>CONFIGURÉ</strong></p>
+                                            <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">🔑 Rate Limiting: <strong>1000 req/min</strong></p>
+                                            <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">📡 API Keys: <strong>6 ACTIVES</strong></p>
+                                            <button class="btn btn-primary-custom btn-custom mt-2" onclick="rotateAPIKeys()">
+                                                <i class="bi bi-arrow-repeat"></i> Rotation Clés API
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Logs Tab -->
+                            <div class="tab-pane fade" id="logs" role="tabpanel">
+                                <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">📋 Journaux d'Activité</h3>
+                                <button class="btn btn-primary-custom btn-custom mb-3" onclick="exportLogs()">
+                                    <i class="bi bi-download"></i> Exporter Logs (CSV)
+                                </button>
+                                <div style="overflow-x: auto;">
+                                    <table class="powerbi-table">
+                                        <thead>
+                                            <tr>
+                                                <th>⏰ Timestamp</th>
+                                                <th>👤 Utilisateur</th>
+                                                <th>📌 Action</th>
+                                                <th>📊 Détails</th>
+                                                <th>✅ Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>01/03/2026 14:35:42</strong></td>
+                                                <td>Ahmed Diallo</td>
+                                                <td>LOGIN</td>
+                                                <td>Session démarrée depuis 192.168.1.15</td>
+                                                <td>✅ SUCCESS</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>01/03/2026 14:27:18</strong></td>
+                                                <td>Marie Sow</td>
+                                                <td>PREDICTION_RUN</td>
+                                                <td>LSTM Water Level (Dakar)</td>
+                                                <td>✅ SUCCESS</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>01/03/2026 14:15:09</strong></td>
+                                                <td>Kofi Mensah</td>
+                                                <td>DATA_EXPORT</td>
+                                                <td>Export GeoJSON 2,150 points</td>
+                                                <td>✅ SUCCESS</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>01/03/2026 13:54:32</strong></td>
+                                                <td>System</td>
+                                                <td>BACKUP</td>
+                                                <td>Sauvegarde BD automatique</td>
+                                                <td>✅ SUCCESS</td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>01/03/2026 13:42:15</strong></td>
+                                                <td>Fatima Toure</td>
+                                                <td>FAILED_LOGIN</td>
+                                                <td>Mot de passe incorrect</td>
+                                                <td>❌ FAILED</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Settings Tab -->
+                            <div class="tab-pane fade" id="settings" role="tabpanel">
+                                <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">⚙️ Paramètres Système</h3>
+                                <div class="row g-4">
+                                    <div class="col-lg-6">
+                                        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-md);">
+                                            <h4 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">📧 Email & Notifications</h4>
+                                            <div style="margin-bottom: 1.5rem;">
+                                                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">Serveur SMTP:</label>
+                                                <input type="text" value="smtp.brainblue.sn" readonly style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-gray); border-radius: 8px; font-weight: 600;">
+                                            </div>
+                                            <div style="margin-bottom: 1.5rem;">
+                                                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">Port:</label>
+                                                <input type="text" value="587" readonly style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-gray); border-radius: 8px; font-weight: 600;">
+                                            </div>
+                                            <label style="display: flex; align-items: center; gap: 10px; font-weight: 700; cursor: pointer;">
+                                                <input type="checkbox" checked style="width: 20px; height: 20px; cursor: pointer;">
+                                                Alertes Email Activées
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: var(--shadow-md);">
+                                            <h4 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1.5rem;">🗄️ Base de Données</h4>
+                                            <div style="margin-bottom: 1.5rem;">
+                                                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">Serveur PostgreSQL:</label>
+                                                <input type="text" value="localhost:5432" readonly style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-gray); border-radius: 8px; font-weight: 600;">
+                                            </div>
+                                            <div style="margin-bottom: 1.5rem;">
+                                                <label style="display: block; font-weight: 700; margin-bottom: 0.5rem;">Cache Redis:</label>
+                                                <input type="text" value="localhost:6379" readonly style="width: 100%; padding: 0.75rem; border: 2px solid var(--light-gray); border-radius: 8px; font-weight: 600;">
+                                            </div>
+                                            <button class="btn btn-primary-custom btn-custom" onclick="backupDatabase()">
+                                                <i class="bi bi-cloud-download"></i> Sauvegarder Maintenant
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(0,102,204,0.08) 0%, rgba(0,168,232,0.05) 100%); border-radius: 12px; border-left: 5px solid var(--primary);">
+                                    <h4 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem;">🔄 Maintenance</h4>
+                                    <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">Dernière sauvegarde: <strong>01/03/2026 12:00:00 UTC</strong></p>
+                                    <p style="font-size: 1.1rem; margin: 0.8rem 0; font-weight: 600;">Prochain backup automatique: <strong>02/03/2026 00:00:00 UTC</strong></p>
+                                    <button class="btn btn-primary-custom btn-custom mt-2" onclick="cleanupOldLogs()">
+                                        <i class="bi bi-trash"></i> Nettoyer Anciens Logs (>90j)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-draw/1.0.4/leaflet.draw.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <script>
+        let flowChart, cityChart;
+        let map;
+
+        // Navigation
+        function navigateTo(sectionName) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link-main').forEach(link => link.classList.remove('active'));
+            event.target.closest('.nav-link-main')?.classList.add('active');
+            
+            setTimeout(() => {
+                if (sectionName === 'maps') initMap();
+                else updateCharts();
+            }, 100);
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Update Charts
+        function updateCharts() {
+            const flowCtx = document.getElementById('flowChart');
+            if (flowCtx && flowCtx.offsetParent !== null && !flowChart) {
+                flowChart = new Chart(flowCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                        datasets: [
+                            {
+                                label: 'Dakar (m³/h)',
+                                data: [2400, 2310, 2500, 2100, 2200, 2500, 2400],
+                                borderColor: '#0066cc',
+                                backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 7,
+                                pointBackgroundColor: '#0066cc',
+                                pointBorderColor: 'white',
+                                pointBorderWidth: 3,
+                                borderWidth: 3
+                            },
+                            {
+                                label: 'Abidjan (m³/h)',
+                                data: [1900, 2100, 1800, 2200, 2300, 2100, 1900],
+                                borderColor: '#00a8e8',
+                                backgroundColor: 'rgba(0, 168, 232, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 7,
+                                pointBackgroundColor: '#00a8e8',
+                                pointBorderColor: 'white',
+                                pointBorderWidth: 3,
+                                borderWidth: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    font: {size: 13, weight: 'bold', family: "'Poppins', sans-serif"},
+                                    padding: 25,
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {font: {size: 12, weight: '600', family: "'Poppins', sans-serif"}},
+                                grid: {color: 'rgba(0, 0, 0, 0.08)'},
+                                title: {display: true, text: 'Débit (m³/h)', font: {size: 13, weight: 'bold'}}
+                            },
+                            x: {
+                                ticks: {font: {size: 12, weight: '600', family: "'Poppins', sans-serif"}},
+                                grid: {display: false},
+                                title: {display: true, text: 'Jour de la Semaine', font: {size: 13, weight: 'bold'}}
+                            }
+                        }
+                    }
+                });
+            }
+
+            const cityCtx = document.getElementById('cityChart');
+            if (cityCtx && cityCtx.offsetParent !== null && !cityChart) {
+                cityChart = new Chart(cityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Dakar', 'Abidjan', 'Autres'],
+                        datasets: [{
+                            data: [45, 35, 20],
+                            backgroundColor: ['#0066cc', '#00a8e8', '#e2e8f0'],
+                            borderColor: 'white',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {size: 12, weight: 'bold', family: "'Poppins', sans-serif"},
+                                    padding: 25,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Fonction pour créer popups beautifiés
+        function createPopup(title, content) {
+            return `<div class="popup-header">${title}</div><div class="popup-content">${content}<div class="popup-footer">BRAINBLUE URBAIN © 2026</div></div>`;
+        }
+
+        // Initialize Map with Geospatial Data PRO
+        function initMap() {
+            const mapElement = document.getElementById('map');
+            if (!mapElement) {
+                console.error('❌ Élément map non trouvé!');
+                return;
+            }
+            
+            if (map) return; // Déjà initialisée
+            
+            console.log('🗺️ Initialisation de la carte...');
+                
+                // Initialiser la carte
+                map = L.map('map', {preferCanvas: true}).setView([14.6963, -17.0441], 11);
+                
+                // Couche de base
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap Contributors',
+                    maxZoom: 19,
+                    minZoom: 9
+                }).addTo(map);
+
+                console.log('✅ Tuiles OSM chargées');
+
+                // Feature Groups pour contrôle des couches
+                const waterNetworksGroup = L.featureGroup();
+                const aquifersGroup = L.featureGroup();
+                const basinsGroup = L.featureGroup();
+                const stationsGroup = L.featureGroup();
+                const treatmentGroup = L.featureGroup();
+                const riskZonesGroup = L.featureGroup();
+
+                // Réseaux hydrographiques détaillés
+                const waterNetworks = [
+                    {lat: 14.75, lng: -17.00, name: 'Fleuve Sénégal - Bras Principal', type: 'Fleuve majeur', flow: 'Ouest-Est', length: '1200 km'},
+                    {lat: 14.70, lng: -17.05, name: 'Canal d\'Adduction Nord', type: 'Canal d\'irrigation', flow: 'Nord-Sud', length: '85 km'},
+                    {lat: 14.68, lng: -17.03, name: 'Canal de Distribution Est', type: 'Canal urbain', flow: 'Est-Ouest', length: '45 km'},
+                    {lat: 14.62, lng: -17.08, name: 'Ndiaye - Réseau Secondaire', type: 'Petit cours d\'eau', flow: 'Variable', length: '22 km'}
+                ];
+
+                // Nappes phréatiques avec données géologiques
+                const aquifers = [
+                    {lat: 14.75, lng: -17.00, name: 'Nappe Maastrichtienne', depth: '200-400m', capacity: 'Très Élevée', volume: '850 Mm³', salinity: 'Douce', aquiferType: 'Aquifère profond'},
+                    {lat: 14.65, lng: -17.10, name: 'Nappe Éocène', depth: '100-200m', capacity: 'Élevée', volume: '480 Mm³', salinity: 'Douce', aquiferType: 'Aquifère intermédiaire'},
+                    {lat: 14.68, lng: -17.02, name: 'Nappe Plio-Q', depth: '30-80m', capacity: 'Modérée', volume: '210 Mm³', salinity: 'Faiblement saline', aquiferType: 'Aquifère superficiel'}
+                ];
+
+                // Bassins de rétention avec capacité détaillée
+                const basins = [
+                    {lat: 14.74, lng: -17.02, name: 'Réservoir Principal Dakar', capacity: '2.5M m³', filled: '87%', constructed: '1982', operator: 'SONES'},
+                    {lat: 14.62, lng: -17.05, name: 'Bassin Secondaire Nord', capacity: '1.2M m³', filled: '72%', constructed: '1995', operator: 'SONES'},
+                    {lat: 14.68, lng: -17.12, name: 'Bassin de Compensation', capacity: '800k m³', filled: '95%', constructed: '2008', operator: 'SONES'},
+                    {lat: 14.71, lng: -17.06, name: 'Retenue de Ziguinchor', capacity: '350k m³', filled: '68%', constructed: '2001', operator: 'ONAS'}
+                ];
+
+                // Stations de pompage avec détails opérationnels
+                const stations = [
+                    {lat: 14.695, lng: -17.045, name: 'Station Principale A', status: 'operational', capacity: '450 l/s', pressure: '4.2 bar'},
+                    {lat: 14.71, lng: -17.08, name: 'Station Distribution B', status: 'operational', capacity: '280 l/s', pressure: '3.8 bar'},
+                    {lat: 14.65, lng: -17.00, name: 'Station Secours C', status: 'maintenance', capacity: '200 l/s', pressure: 'N/A'},
+                    {lat: 14.72, lng: -17.02, name: 'Station Élevation Nord', status: 'operational', capacity: '350 l/s', pressure: '4.5 bar'}
+                ];
+
+                // Usines de traitement
+                const treatment = [
+                    {lat: 14.73, lng: -17.04, name: 'UTDE Dakar Central', type: 'Traitement principal', capacity: '400,000 m³/jour'},
+                    {lat: 14.60, lng: -17.08, name: 'Usine Kaolack', type: 'Traitement régional', capacity: '150,000 m³/jour'}
+                ];
+
+                // Zones à risque
+                const riskZones = [
+                    {lat: 14.58, lng: -17.06, name: 'Zone Inondable 1', risk: 'Élevé', population: '85,000'},
+                    {lat: 14.72, lng: -17.10, name: 'Zone Sèche 2', risk: 'Critique', population: '45,000'}
+                ];
+
+                // Ajouter réseaux hydrographiques
+                waterNetworks.forEach(net => {
+                    L.circleMarker([net.lat, net.lng], {
+                        radius: 14,
+                        fillColor: '#0066cc',
+                        color: 'white',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.85
+                    }).bindPopup(createPopup(
+                        `🌊 ${net.name}`,
+                        `<p><strong>Type:</strong> ${net.type}</p>
+                         <p><strong>Direction:</strong> ${net.flow}</p>
+                         <p><strong>Longueur:</strong> ${net.length}</p>
+                         <p><strong>Débit:</strong> 45 m³/s</p>
+                         <p><strong>Qualité:</strong> ✅ Bonne</p>`
+                    ), {maxWidth: 350}).addTo(waterNetworksGroup);
+                });
+
+                // Ajouter nappes phréatiques
+                aquifers.forEach(aq => {
+                    L.circleMarker([aq.lat, aq.lng], {
+                        radius: 16,
+                        fillColor: '#00b4d8',
+                        color: 'white',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.80
+                    }).bindPopup(createPopup(
+                        `💧 ${aq.name}`,
+                        `<p><strong>Profondeur:</strong> ${aq.depth}</p>
+                         <p><strong>Type:</strong> ${aq.aquiferType}</p>
+                         <p><strong>Volume:</strong> ${aq.volume}</p>
+                         <p><strong>Capacité:</strong> ${aq.capacity}</p>
+                         <p><strong>Salinité:</strong> ${aq.salinity}</p>`
+                    ), {maxWidth: 350}).addTo(aquifersGroup);
+                });
+
+                // Ajouter bassins de rétention
+                basins.forEach(basin => {
+                    L.circleMarker([basin.lat, basin.lng], {
+                        radius: 18,
+                        fillColor: '#06a77d',
+                        color: 'white',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.85
+                    }).bindPopup(createPopup(
+                        `🏊 ${basin.name}`,
+                        `<p><strong>Capacité:</strong> ${basin.capacity}</p>
+                         <p><strong>Remplissage:</strong> ${basin.filled}</p>
+                         <p><strong>Construit:</strong> ${basin.constructed}</p>
+                         <p><strong>Opérateur:</strong> ${basin.operator}</p>
+                         <p><strong>Status:</strong> ✅ Opérationnel</p>`
+                    ), {maxWidth: 350}).addTo(basinsGroup);
+                });
+
+                // Ajouter stations de pompage
+                stations.forEach(station => {
+                    const color = station.status === 'operational' ? '#06a77d' : '#f77f00';
+                    const icon = station.status === 'operational' ? '✅' : '⚠️';
+                    L.circleMarker([station.lat, station.lng], {
+                        radius: 13,
+                        fillColor: color,
+                        color: 'white',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.85
+                    }).bindPopup(createPopup(
+                        `📍 ${station.name}`,
+                        `<p><strong>Status:</strong> ${icon} ${station.status}</p>
+                         <p><strong>Capacité:</strong> ${station.capacity}</p>
+                         <p><strong>Pression:</strong> ${station.pressure}</p>
+                         <p><strong>Type:</strong> Pompage urbain</p>
+                         <p><strong>Débit Actuel:</strong> 380 l/s</p>`
+                    ), {maxWidth: 350}).addTo(stationsGroup);
+                });
+
+                // Ajouter usines de traitement
+                treatment.forEach(plant => {
+                    L.circleMarker([plant.lat, plant.lng], {
+                        radius: 15,
+                        fillColor: '#a855f7',
+                        color: 'white',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.85
+                    }).bindPopup(createPopup(
+                        `🏭 ${plant.name}`,
+                        `<p><strong>Type:</strong> ${plant.type}</p>
+                         <p><strong>Capacité:</strong> ${plant.capacity}</p>
+                         <p><strong>Procédés:</strong> Coagulation, Filtration, Chloration</p>
+                         <p><strong>Débit Actuel:</strong> 380,000 m³/jour</p>
+                         <p><strong>Rendement:</strong> 94%</p>`
+                    ), {maxWidth: 350}).addTo(treatmentGroup);
+                });
+
+                // Ajouter zones à risque
+                riskZones.forEach(zone => {
+                    L.circleMarker([zone.lat, zone.lng], {
+                        radius: 20,
+                        fillColor: '#d62828',
+                        color: 'white',
+                        weight: 4,
+                        opacity: 0.9,
+                        fillOpacity: 0.60
+                    }).bindPopup(createPopup(
+                        `🚨 ${zone.name}`,
+                        `<p><strong>Niveau Risque:</strong> 🔴 ${zone.risk}</p>
+                         <p><strong>Population Exposée:</strong> ${zone.population}</p>
+                         <p><strong>Monitoring:</strong> 24/7 Actif</p>
+                         <p><strong>Alerte SMS:</strong> Activée</p>
+                         <p><strong>Plan Évacuation:</strong> En Place</p>`
+                    ), {maxWidth: 350}).addTo(riskZonesGroup);
+                });
+
+                // Ajouter tous les groupes à la carte
+                waterNetworksGroup.addTo(map);
+                aquifersGroup.addTo(map);
+                basinsGroup.addTo(map);
+                stationsGroup.addTo(map);
+                treatmentGroup.addTo(map);
+                riskZonesGroup.addTo(map);
+
+                console.log('✅ Tous les marqueurs ajoutés');
+
+                // Contrôle des couches
+                const layerControl = L.control.layers(
+                    {},
+                    {
+                        "🌊 Réseaux Hydrographiques": waterNetworksGroup,
+                        "💧 Nappes Phréatiques": aquifersGroup,
+                        "🏊 Bassins de Rétention": basinsGroup,
+                        "📍 Stations de Pompage": stationsGroup,
+                        "🏭 Usines de Traitement": treatmentGroup,
+                        "🚨 Zones à Risque": riskZonesGroup
+                    },
+                    {position: 'topright', collapsed: false}
+                ).addTo(map);
+
+                // Personnaliser le contrôle des couches
+                document.querySelectorAll('.leaflet-control-layers-label').forEach(label => {
+                    label.style.fontFamily = "'Poppins', sans-serif";
+                    label.style.fontWeight = '700';
+                    label.style.fontSize = '1rem';
+                });
+
+                // Légende personnalisée
+                const legend = L.control({position: 'bottomright'});
+                legend.onAdd = function() {
+                    const div = L.DomUtil.create('div', 'map-legend');
+                    div.innerHTML = `
+                        <div class="legend-title">📍 Légende Complète</div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #0066cc;"></div>
+                            <div>
+                                <div class="legend-text">🌊 Réseaux Hydrographiques</div>
+                                <div class="legend-text-small">Fleuves, canaux, cours d'eau</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #00b4d8;"></div>
+                            <div>
+                                <div class="legend-text">💧 Nappes Phréatiques</div>
+                                <div class="legend-text-small">Aquifères: Profonde, Intermédiaire, Superficielle</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #06a77d;"></div>
+                            <div>
+                                <div class="legend-text">🏊 Bassins de Rétention</div>
+                                <div class="legend-text-small">Réservoirs et retenues d'eau</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #06a77d;"></div>
+                            <div>
+                                <div class="legend-text">📍 Stations de Pompage</div>
+                                <div class="legend-text-small">Infrastructure de distribution</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #a855f7;"></div>
+                            <div>
+                                <div class="legend-text">🏭 Usines de Traitement</div>
+                                <div class="legend-text-small">Traitement et purification</div>
+                            </div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #d62828;"></div>
+                            <div>
+                                <div class="legend-text">🚨 Zones à Risque</div>
+                                <div class="legend-text-small">Inondations, contamination, assèchement</div>
+                            </div>
+                        </div>
+                    `;
+                    return div;
+                };
+                legend.addTo(map);
+
+                // Boîte d'information en temps réel
+                const infoBox = L.control({position: 'bottomleft'});
+                infoBox.onAdd = function() {
+                    const div = L.DomUtil.create('div', 'map-info-box');
+                    div.innerHTML = `
+                        <h4>📊 Statistiques Temps Réel</h4>
+                        <p>🌍 Zones Suivies: <strong>6 types</strong></p>
+                        <p>📍 Points d'Intérêt: <strong>16</strong></p>
+                        <p>💾 Capacité Totale: <strong>4.85M m³</strong></p>
+                        <p>⏱️ Mise à Jour: <strong>Temps Réel</strong></p>
+                        <p style="margin-top: 1rem; border-top: 2px solid var(--light-gray); padding-top: 0.8rem; font-size: 0.85rem; color: var(--text-light);">Cliquez sur les marqueurs pour détails complets</p>
+                    `;
+                    return div;
+                };
+                infoBox.addTo(map);
+
+                // Événements interactifs
+                map.on('click', e => {
+                    const coords = `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+                    console.log('📍 Position cliquée:', coords);
+                });
+
+                // Optimisation performance
+                map.on('zoom', () => {
+                    document.querySelectorAll('.leaflet-marker-icon').forEach(marker => {
+                        marker.style.filter = 'drop-shadow(0 0 4px rgba(0, 102, 204, 0.4))';
+                    });
+                });
+        }
+
+        // Run Predictions
+        function runPrediction(modelName) {
+            const resultsDiv = document.getElementById('prediction-results');
+            const resultsContent = document.getElementById('results-content');
+
+            let htmlContent = '';
+
+            if (modelName === 'lstm') {
+                htmlContent = `
+                    <h3 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">
+                        📊 Prédictions LSTM - Niveaux d'Eau (7 Jours)
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="powerbi-table">
+                            <thead>
+                                <tr>
+                                    <th>📅 Date</th>
+                                    <th>💧 Niveau Prédit (m)</th>
+                                    <th>📈 Intervalle Confiance</th>
+                                    <th>⚠️ Risque</th>
+                                    <th>📌 Tendance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: rgba(6, 167, 125, 0.08);">
+                                    <td><strong>21/02/2026</strong></td>
+                                    <td><strong>85.4m</strong></td>
+                                    <td>[82.1m - 88.7m]</td>
+                                    <td>✅ Bas</td>
+                                    <td>↗️ Augmentation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>22/02/2026</strong></td>
+                                    <td><strong>86.2m</strong></td>
+                                    <td>[83.0m - 89.4m]</td>
+                                    <td>✅ Normal</td>
+                                    <td>↗️ Augmentation</td>
+                                </tr>
+                                <tr style="background: rgba(247, 127, 0, 0.08);">
+                                    <td><strong>23/02/2026</strong></td>
+                                    <td><strong>84.8m</strong></td>
+                                    <td>[81.5m - 88.1m]</td>
+                                    <td>⚠️ Moyen</td>
+                                    <td>↘️ Diminution</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>24/02/2026</strong></td>
+                                    <td><strong>83.5m</strong></td>
+                                    <td>[80.2m - 86.8m]</td>
+                                    <td>⚠️ Moyen</td>
+                                    <td>↘️ Diminution</td>
+                                </tr>
+                                <tr style="background: rgba(214, 40, 40, 0.08);">
+                                    <td><strong>25/02/2026</strong></td>
+                                    <td><strong>81.2m</strong></td>
+                                    <td>[77.9m - 84.5m]</td>
+                                    <td>🔴 Critique</td>
+                                    <td>↘️ Diminution</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>26/02/2026</strong></td>
+                                    <td><strong>82.1m</strong></td>
+                                    <td>[78.8m - 85.4m]</td>
+                                    <td>⚠️ Moyen</td>
+                                    <td>↗️ Augmentation</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>27/02/2026</strong></td>
+                                    <td><strong>84.3m</strong></td>
+                                    <td>[81.0m - 87.6m]</td>
+                                    <td>✅ Normal</td>
+                                    <td>↗️ Augmentation</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(0,102,204,0.1) 0%, rgba(0,168,232,0.05) 100%); border-radius: 12px; border-left: 5px solid var(--primary);">
+                        <h4 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem;">📊 Statistiques & Recommandations</h4>
+                        <p><strong>Moyenne Prédite:</strong> 84.1m | <strong>Écart-Type:</strong> 1.8m</p>
+                        <p><strong>Point Critique:</strong> 25/02/2026 (81.2m - action requise)</p>
+                        <p><strong>Recommandation:</strong> Augmenter les apports d'eau de 15% dès le 23/02</p>
+                    </div>
+                `;
+            } else if (modelName === 'xgboost') {
+                htmlContent = `
+                    <h3 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">
+                        📊 Prédictions XGBoost - Demande en Eau (7 Jours)
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="powerbi-table">
+                            <thead>
+                                <tr>
+                                    <th>📅 Date</th>
+                                    <th>📦 Demande Prédite (m³)</th>
+                                    <th>🌡️ Température</th>
+                                    <th>👥 Population</th>
+                                    <th>✅ Confiance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>21/02/2026</strong></td>
+                                    <td><strong>148,320 m³</strong></td>
+                                    <td>22°C</td>
+                                    <td>2.95M habitants</td>
+                                    <td>✅ 89%</td>
+                                </tr>
+                                <tr style="background: rgba(0,168,232,0.08);">
+                                    <td><strong>22/02/2026</strong></td>
+                                    <td><strong>156,540 m³</strong></td>
+                                    <td>24°C</td>
+                                    <td>3.0M habitants</td>
+                                    <td>✅ 87%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>23/02/2026</strong></td>
+                                    <td><strong>142,890 m³</strong></td>
+                                    <td>20°C</td>
+                                    <td>2.9M habitants</td>
+                                    <td>✅ 85%</td>
+                                </tr>
+                                <tr style="background: rgba(0,168,232,0.08);">
+                                    <td><strong>24/02/2026</strong></td>
+                                    <td><strong>165,210 m³</strong></td>
+                                    <td>26°C</td>
+                                    <td>3.05M habitants</td>
+                                    <td>✅ 88%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>25/02/2026</strong></td>
+                                    <td><strong>151,430 m³</strong></td>
+                                    <td>23°C</td>
+                                    <td>2.98M habitants</td>
+                                    <td>✅ 86%</td>
+                                </tr>
+                                <tr style="background: rgba(0,168,232,0.08);">
+                                    <td><strong>26/02/2026</strong></td>
+                                    <td><strong>158,760 m³</strong></td>
+                                    <td>25°C</td>
+                                    <td>3.02M habitants</td>
+                                    <td>✅ 84%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>27/02/2026</strong></td>
+                                    <td><strong>145,320 m³</strong></td>
+                                    <td>21°C</td>
+                                    <td>2.92M habitants</td>
+                                    <td>✅ 86%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(0,102,204,0.1) 0%, rgba(0,168,232,0.05) 100%); border-radius: 12px; border-left: 5px solid var(--primary);">
+                        <h4 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem;">📊 Analyse Détaillée</h4>
+                        <p><strong>Demande Moyenne:</strong> 153,209 m³ | <strong>Pic:</strong> 165,210 m³ (24/02)</p>
+                        <p><strong>Corrélation Température:</strong> 0.78 (forte) | <strong>MAPE:</strong> 4.2%</p>
+                        <p><strong>Recommandation:</strong> Préparer +12,000 m³ le 24/02 (pic de demande)</p>
+                    </div>
+                `;
+            } else if (modelName === 'cnn') {
+                htmlContent = `
+                    <h3 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">
+                        🌊 CNN-SAR - Analyse Risque Inondation
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="powerbi-table">
+                            <thead>
+                                <tr>
+                                    <th>🗺️ Zone</th>
+                                    <th>📊 Probabilité Inondation</th>
+                                    <th>⚠️ Niveau Risque</th>
+                                    <th>👥 Population Exposée</th>
+                                    <th>📌 Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Dakar - Zone Centrale</strong></td>
+                                    <td>12.3%</td>
+                                    <td>✅ Bas</td>
+                                    <td>125,000 hab</td>
+                                    <td>Monitoring</td>
+                                </tr>
+                                <tr style="background: rgba(247,127,0,0.08);">
+                                    <td><strong>Dakar - Zone Plateau</strong></td>
+                                    <td>28.7%</td>
+                                    <td>⚠️ Moyen</td>
+                                    <td>342,000 hab</td>
+                                    <td>Alerte</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dakar - Plaine Alluviale</strong></td>
+                                    <td>67.4%</td>
+                                    <td>🔴 Critique</td>
+                                    <td>895,000 hab</td>
+                                    <td>Évacuation Prépare</td>
+                                </tr>
+                                <tr style="background: rgba(6,167,125,0.08);">
+                                    <td><strong>Périphérie Nord</strong></td>
+                                    <td>8.5%</td>
+                                    <td>✅ Bas</td>
+                                    <td>45,000 hab</td>
+                                    <td>Normal</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Périphérie Est</strong></td>
+                                    <td>35.2%</td>
+                                    <td>⚠️ Moyen</td>
+                                    <td>280,000 hab</td>
+                                    <td>Vigilance</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(214,40,40,0.1) 0%, rgba(214,40,40,0.05) 100%); border-radius: 12px; border-left: 5px solid var(--danger);">
+                        <h4 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; color: var(--danger);">⚠️ Alerte Critique</h4>
+                        <p><strong>Zone la Plus Exposée:</strong> Plaine Alluviale (67.4% risque) - 895,000 habitants</p>
+                        <p><strong>Source Données:</strong> Sentinel-1 SAR Imaging | <strong>Accuracy:</strong> 88.9%</p>
+                        <p><strong>Action Immédiate:</strong> Préparer evacuations d'urgence - Mettre en place système d'alerte SMS/Radio</p>
+                    </div>
+                `;
+            } else if (modelName === 'rf') {
+                htmlContent = `
+                    <h3 style="font-size: 2rem; font-weight: 800; margin-bottom: 2rem; color: var(--primary);">
+                        🔧 RandomForest - Prédiction Ruptures Tuyaux
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="powerbi-table">
+                            <thead>
+                                <tr>
+                                    <th>🔗 Segment Tuyau</th>
+                                    <th>📊 Probabilité Rupture</th>
+                                    <th>⚠️ Score Risque</th>
+                                    <th>📅 Âge (ans)</th>
+                                    <th>🎯 Priorité</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: rgba(214,40,40,0.08);">
+                                    <td><strong>Segment SEG-045 (Béton)</strong></td>
+                                    <td>34.2%</td>
+                                    <td>🔴 8.7/10</td>
+                                    <td>28 ans</td>
+                                    <td>CRITIQUE</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Segment SEG-078 (Fonte)</strong></td>
+                                    <td>22.1%</td>
+                                    <td>⚠️ 6.3/10</td>
+                                    <td>35 ans</td>
+                                    <td>HAUTE</td>
+                                </tr>
+                                <tr style="background: rgba(247,127,0,0.08);">
+                                    <td><strong>Segment SEG-102 (PVC)</strong></td>
+                                    <td>15.8%</td>
+                                    <td>⚠️ 5.1/10</td>
+                                    <td>14 ans</td>
+                                    <td>MOYENNE</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Segment SEG-156 (Fonte)</strong></td>
+                                    <td>28.9%</td>
+                                    <td>⚠️ 7.2/10</td>
+                                    <td>42 ans</td>
+                                    <td>HAUTE</td>
+                                </tr>
+                                <tr style="background: rgba(6,167,125,0.08);">
+                                    <td><strong>Segment SEG-203 (PVC)</strong></td>
+                                    <td>8.3%</td>
+                                    <td>✅ 2.1/10</td>
+                                    <td>5 ans</td>
+                                    <td>BASSE</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(0,102,204,0.1) 0%, rgba(0,168,232,0.05) 100%); border-radius: 12px; border-left: 5px solid var(--primary);">
+                        <h4 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem;">🛠️ Plan de Maintenance Préventive</h4>
+                        <p><strong>Segments Critiques:</strong> SEG-045 (34.2% risque) - Remplacement immédiat recommandé</p>
+                        <p><strong>Features Principales:</strong> Âge du tuyau (42% importance) | Matériau (28%) | Pression (18%) | Type sol (12%)</p>
+                        <p><strong>Économie Estimée:</strong> 240,000€ en évitant ruptures d'urgence (vs 85,000€ maintenance préventive)</p>
+                    </div>
+                `;
+            }
+
+            resultsContent.innerHTML = htmlContent;
+            resultsDiv.classList.remove('hidden');
+            resultsDiv.scrollIntoView({behavior: 'smooth'});
+        }
+
+        function toggleMenu() {
+            // Toggle menu functionality
+        }
+
+        // ========== ADMIN FUNCTIONS ==========
+        function addNewUser() {
+            const name = prompt('Nom de l\'utilisateur:');
+            if (!name) return;
+            
+            const email = prompt('Email:');
+            if (!email) return;
+            
+            const userList = document.getElementById('users-list');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><strong>${name}</strong></td>
+                <td>${email}</td>
+                <td><span class="badge-status badge-warning">NOUVEL</span></td>
+                <td>🟢 Actif</td>
+                <td><button class="btn btn-sm" onclick="editUser(0)" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Éditer</button></td>
+            `;
+            userList.appendChild(newRow);
+            alert(`✅ Utilisateur ${name} ajouté avec succès!`);
+        }
+
+        function editUser(userId) {
+            alert(`📝 Édition utilisateur #${userId}\n\nFonctionnalités disponibles:\n✅ Modifier rôle\n✅ Réinitialiser mot de passe\n✅ Activer/désactiver compte`);
+        }
+
+        function enableTwoFactor() {
+            alert('🔐 Double authentification activée pour tous les utilisateurs\n\nLes utilisateurs recevront un SMS de confirmation');
+        }
+
+        function rotateAPIKeys() {
+            const keys = ['sk_live_4eC39HqLyjWDarh...', 'sk_live_7gF52KqMnzVpLm...', 'sk_test_5tH61RxQqZmNop...'];
+            alert(`🔑 Rotation des clés API effectuée\n\nNouvelles clés générées:\n${keys.map((k, i) => `${i+1}. ${k}`).join('\n')}\n\n⚠️ Les anciennes clés seront invalidées dans 24h`);
+        }
+
+        function backupDatabase() {
+            const timestamp = new Date().toLocaleString();
+            alert(`💾 Sauvegarde base de données lancée...\n\nTimestamp: ${timestamp}\nTaille estimée: 2.4 GB\nDurée: ~3 minutes\n\nStatus: EN COURS...`);
+            setTimeout(() => {
+                alert('✅ Sauvegarde complétée avec succès!\n\nFichier: brainblue_backup_01032026_143542.sql');
+            }, 2000);
+        }
+
+        function exportLogs() {
+            alert('📥 Export des logs en cours...\n\nFormat: CSV\nPériode: Derniers 30 jours\nNombre d\'enregistrements: 1,240\n\nFichier: logs_01032026.csv');
+            console.log('Logs exportés');
+        }
+
+        function cleanupOldLogs() {
+            alert('🗑️ Nettoyage des logs lancé...\n\nFiltres:\n- Logs > 90 jours\n- Status = SUCCESS\n- Taille recouvrée: ~450 MB\n\n✅ Opération complétée!');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(updateCharts, 300);
+        });
+
+        window.addEventListener('resize', () => {
+            if (map) setTimeout(() => map.invalidateSize(), 100);
+            if (flowChart) flowChart.resize();
+            if (cityChart) cityChart.resize();
+        });
+    </script>
+</body>
+</html>
